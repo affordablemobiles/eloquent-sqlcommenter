@@ -1,0 +1,25 @@
+{
+    "name": "a1comms/eloquent-sqlcommenter",
+    "description": "sqlcommenter support for Laravel's Eloquent ORM",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Samuel Melrose",
+            "email": "sam.melrose@a1comms.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "opencensus/opencensus": "~0",
+        "illuminate/support": "~9",
+        "illuminate/database": "~9"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "A1comms\\sqlcommenter\\": "src/A1comms/sqlcommenter/"
+        }
+    }
+}
