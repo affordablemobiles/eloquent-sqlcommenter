@@ -16,6 +16,6 @@ Pull in the package via `composer`:
 
 ```js
 "require": {
-    "a1comms/eloquent-sqlcommenter": "~9.0"
+    "a1comms/eloquent-sqlcommenter": "~9"
 }
 ```
