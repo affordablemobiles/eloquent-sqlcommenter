@@ -4,40 +4,36 @@ declare(strict_types=1);
 
 namespace A1comms\sqlcommenter\Connectors;
 
-use A1comms\sqlcommenter\MySqlConnection;
-use A1comms\sqlcommenter\PostgresConnection;
-use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory as LaravelConnectionFactory;
-use Illuminate\Database\SQLiteConnection;
-use Illuminate\Database\SqlServerConnection;
+use Illuminate\Database\Connectors\SQLiteConnector;
+use Illuminate\Database\Connectors\SqlServerConnector;
 use InvalidArgumentException;
 
 class ConnectionFactory extends LaravelConnectionFactory
 {
     /**
-     * Create a new connection instance.
-     *
-     * @param string        $driver
-     * @param \Closure|\PDO $connection
-     * @param string        $database
-     * @param string        $prefix
+     * Create a connector instance based on the configuration.
      *
      * @throws \InvalidArgumentException
      *
-     * @return \Illuminate\Database\Connection
+     * @return \Illuminate\Database\Connectors\ConnectorInterface
      */
-    protected function createConnection($driver, $connection, $database, $prefix = '', array $config = [])
+    public function createConnector(array $config)
     {
-        if ($resolver = Connection::getResolver($driver)) {
-            return $resolver($connection, $database, $prefix, $config);
+        if (!isset($config['driver'])) {
+            throw new InvalidArgumentException('A driver must be specified.');
         }
 
-        return match ($driver) {
-            'mysql'  => new MySqlConnection($connection, $database, $prefix, $config),
-            'pgsql'  => new PostgresConnection($connection, $database, $prefix, $config),
-            'sqlite' => new SQLiteConnection($connection, $database, $prefix, $config),
-            'sqlsrv' => new SqlServerConnection($connection, $database, $prefix, $config),
-            default  => throw new InvalidArgumentException("Unsupported driver [{$driver}]."),
+        if ($this->container->bound($key = "db.connector.{$config['driver']}")) {
+            return $this->container->make($key);
+        }
+
+        return match ($config['driver']) {
+            'mysql'  => new MySqlConnector(),
+            'pgsql'  => new PostgresConnector(),
+            'sqlite' => new SQLiteConnector(),
+            'sqlsrv' => new SqlServerConnector(),
+            default  => throw new InvalidArgumentException("Unsupported driver [{$config['driver']}]."),
         };
     }
 }

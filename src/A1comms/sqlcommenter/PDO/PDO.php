@@ -4,44 +4,32 @@ declare(strict_types=1);
 
 namespace A1comms\sqlcommenter\PDO;
 
-use Illuminate\Database\PDO\Connection as LaravelConnection;
 use OpenCensus\Trace\Propagator\TraceContextFormatter;
 use OpenCensus\Trace\Tracer;
+use PDO as BasePDO;
+use PDOStatement;
 
-class Connection extends LaravelConnection
+class PDO extends BasePDO
 {
-    /**
-     * Execute an SQL statement.
-     */
-    public function exec(string $statement): int
+    public function prepare(string $query, array $options = []): PDOStatement|false
+    {
+        $query = $this->appendSQLComment($query);
+
+        return parent::prepare($query, $options);
+    }
+
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): PDOStatement|false
+    {
+        $query = $this->appendSQLComment($query);
+
+        return parent::query($query, $fetchMode, ...$fetchModeArgs);
+    }
+
+    public function exec(string $statement): int|false
     {
         $statement = $this->appendSQLComment($statement);
 
         return parent::exec($statement);
-    }
-
-    /**
-     * Prepare a new SQL statement.
-     *
-     * @return \Doctrine\DBAL\Driver\Statement
-     */
-    public function prepare(string $sql): StatementInterface
-    {
-        $sql = $this->appendSQLComment($sql);
-
-        return parent::prepare($sql);
-    }
-
-    /**
-     * Execute a new query against the connection.
-     *
-     * @return \Doctrine\DBAL\Driver\Result
-     */
-    public function query(string $sql): ResultInterface
-    {
-        $sql = $this->appendSQLComment($sql);
-
-        return parent::query($sql);
     }
 
     protected function appendSQLComment(string $sql): string
@@ -54,13 +42,13 @@ class Connection extends LaravelConnection
 
         $trace_data = $this->cleanTraceData($trace_data);
 
-        return $sql.' /*'.implode('', $trace_data).'*/';
+        return $sql.' /*'.implode(',', $trace_data).'*/';
     }
 
     protected function getTraceData(): array
     {
         return [
-            'framework'   => app()->version(),
+            'framework'   => 'Laravel '.app()->version(),
             'route'       => request()->route()->getName() ?? request->path(),
             'controller'  => request()->route()->getActionName(),
             'traceparent' => (new TraceContextFormatter())->serialize(
