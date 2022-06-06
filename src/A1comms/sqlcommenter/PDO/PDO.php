@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace A1comms\sqlcommenter\PDO;
 
+use Illuminate\Support\Arr;
 use OpenCensus\Trace\Propagator\TraceContextFormatter;
 use OpenCensus\Trace\Tracer;
 use PDO as BasePDO;
@@ -49,8 +50,8 @@ class PDO extends BasePDO
     {
         return [
             'framework'   => 'Laravel '.app()->version(),
-            'route'       => request()->route()->getName() ?? request->path(),
-            'controller'  => request()->route()->getActionName(),
+            'route'       => app()->runningInConsole() ? Arr::get(request()->server(), 'argv.1') : (request()->route()->getName() ?? request->path()),
+            'controller'  => app()->runningInConsole() ? 'artisan' : request()->route()->getActionName(),
             'traceparent' => (new TraceContextFormatter())->serialize(
                 Tracer::spanContext()
             ),
