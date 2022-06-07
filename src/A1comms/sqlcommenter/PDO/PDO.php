@@ -43,9 +43,9 @@ class PDO extends BasePDO
 
         $trace_data = $this->cleanTraceData($trace_data);
 
-        $query=trim($query);
+        $sql=trim($sql);
 
-        if (';' === $query[-1]) {
+        if (';' === $sql[-1]) {
             return rtrim($sql, ';').' /*'.implode(',', $trace_data).'*/'.';';
         }
 
