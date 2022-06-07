@@ -43,19 +43,49 @@ class PDO extends BasePDO
 
         $trace_data = $this->cleanTraceData($trace_data);
 
+        $query=trim($query);
+
+        if (';' === $query[-1]) {
+            return rtrim($sql, ';').' /*'.implode(',', $trace_data).'*/'.';';
+        }
+
         return $sql.' /*'.implode(',', $trace_data).'*/';
     }
 
     protected function getTraceData(): array
     {
-        return [
-            'framework'   => 'Laravel '.app()->version(),
-            'route'       => app()->runningInConsole() ? Arr::get(request()->server(), 'argv.1') : (request()->route()->getName() ?? request->path()),
-            'controller'  => app()->runningInConsole() ? 'artisan' : request()->route()->getActionName(),
+        $comment = [
+            'framework'   => 'laravel-'.app()->version(),
             'traceparent' => (new TraceContextFormatter())->serialize(
                 Tracer::spanContext()
             ),
         ];
+
+        $action = null;
+
+        if (app()->runningInConsole()) {
+            $comment['controller'] = 'artisan';
+
+            $comment['route'] = Arr::get(request()->server(), 'argv.1');
+        } else {
+            if (!empty(app('request')->route())) {
+                $action = app('request')->route()->getAction();
+            }
+
+            if (!empty($action['controller'])) {
+                $comment['controller'] = explode('@', class_basename($action['controller']))[0];
+            }
+            if (!empty($action && $action['controller'] && str_contains($action['controller'], '@'))) {
+                $comment['action'] = explode('@', class_basename($action['controller']))[1];
+            }
+
+            $comment['route'] = request()->path();
+        }
+
+        $connection           = config('database.default');
+        $comment['db_driver'] = config("database.connections.{$connection}.driver");
+
+        return $comment;
     }
 
     protected function cleanTraceData(array $data): array
