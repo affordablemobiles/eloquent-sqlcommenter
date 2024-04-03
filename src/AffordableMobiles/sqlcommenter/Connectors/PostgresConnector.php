@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace A1comms\sqlcommenter\Connectors;
+namespace AffordableMobiles\sqlcommenter\Connectors;
 
 use Illuminate\Database\Connectors\PostgresConnector as BasePostgresConnector;
 

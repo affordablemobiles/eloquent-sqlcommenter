@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace A1comms\sqlcommenter\Connectors\Concerns;
+namespace AffordableMobiles\sqlcommenter\Connectors\Concerns;
 
-use A1comms\sqlcommenter\PDO\PDO;
+use AffordableMobiles\sqlcommenter\PDO\PDO;
 
 trait ExtendsPDO
 {

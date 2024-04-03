@@ -2,31 +2,29 @@
 
 declare(strict_types=1);
 
-namespace A1comms\sqlcommenter\PDO;
+namespace AffordableMobiles\sqlcommenter\PDO;
 
 use Illuminate\Support\Arr;
-use OpenCensus\Trace\Propagator\TraceContextFormatter;
-use OpenCensus\Trace\Tracer;
+use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use PDO as BasePDO;
-use PDOStatement;
 
 class PDO extends BasePDO
 {
-    public function prepare(string $query, array $options = []): PDOStatement|false
+    public function prepare(string $query, array $options = []): false|\PDOStatement
     {
         $query = $this->appendSQLComment($query);
 
         return parent::prepare($query, $options);
     }
 
-    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): PDOStatement|false
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): false|\PDOStatement
     {
         $query = $this->appendSQLComment($query);
 
         return parent::query($query, $fetchMode, ...$fetchModeArgs);
     }
 
-    public function exec(string $statement): int|false
+    public function exec(string $statement): false|int
     {
         $statement = $this->appendSQLComment($statement);
 
@@ -46,7 +44,7 @@ class PDO extends BasePDO
         $sql=trim($sql);
 
         if (';' === $sql[-1]) {
-            return rtrim($sql, ';').' /*'.implode(',', $trace_data).'*/'.';';
+            return rtrim($sql, ';').' /*'.implode(',', $trace_data).'*/;';
         }
 
         return $sql.' /*'.implode(',', $trace_data).'*/';
@@ -56,10 +54,10 @@ class PDO extends BasePDO
     {
         $comment = [
             'framework'   => 'laravel-'.app()->version(),
-            'traceparent' => (new TraceContextFormatter())->serialize(
-                Tracer::spanContext()
-            ),
         ];
+
+        TraceContextPropagator::getInstance()->inject($comment);
+        unset($comment[TraceContextPropagator::TRACESTATE]);
 
         $action = null;
 

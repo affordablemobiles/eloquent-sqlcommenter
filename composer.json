@@ -1,25 +1,32 @@
 {
-    "name": "a1comms/eloquent-sqlcommenter",
+    "name": "affordablemobiles/eloquent-sqlcommenter",
     "description": "sqlcommenter support for Laravel's Eloquent ORM",
     "license": "MIT",
     "authors": [
         {
             "name": "Samuel Melrose",
-            "email": "sam.melrose@a1comms.com"
+            "email": "sam.melrose@affordablemobiles.co.uk"
         }
     ],
     "require": {
-        "php": "^8.1",
-        "opencensus/opencensus": "~0",
-        "illuminate/support": "~9",
-        "illuminate/database": "~9"
+        "php": "^8.3",
+        "open-telemetry/sdk": "~1",
+        "illuminate/support": "~11",
+        "illuminate/database": "~11",
+        "symfony/http-client": "^7.0",
+        "nyholm/psr7": "^1.8"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.6"
     },
     "autoload": {
         "psr-4": {
-            "A1comms\\sqlcommenter\\": "src/A1comms/sqlcommenter/"
+            "AffordableMobiles\\sqlcommenter\\": "src/AffordableMobiles/sqlcommenter/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
         }
     }
 }
