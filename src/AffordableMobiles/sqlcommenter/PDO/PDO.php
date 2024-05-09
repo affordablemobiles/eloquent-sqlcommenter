@@ -73,7 +73,7 @@ class PDO extends BasePDO
             if (!empty($action['controller'])) {
                 $comment['controller'] = explode('@', class_basename($action['controller']))[0];
             }
-            if (!empty($action && $action['controller'] && str_contains($action['controller'], '@'))) {
+            if (!empty($action) && !empty($action['controller']) && str_contains($action['controller'] ?? '', '@')) {
                 $comment['action'] = explode('@', class_basename($action['controller']))[1];
             }
 
