@@ -91,7 +91,7 @@ class PDO extends BasePDO
         $return_data = [];
 
         foreach ($data as $key => $value) {
-            $return_data[] = urlencode($key).'='.$this->quote(urlencode($value));
+            $return_data[] = urlencode($key).'='.$this->quote($value ? urlencode($value) : '');
         }
 
         sort($return_data);
